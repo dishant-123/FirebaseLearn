@@ -29,9 +29,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isUserAlreadySignIn();
         binding = ActivitySignUpBinding.inflate(getLayoutInflater());
         initListener();
         setContentView(binding.getRoot());
+    }
+
+    private void isUserAlreadySignIn() {
+        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void initListener() {

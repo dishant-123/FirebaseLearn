@@ -3,7 +3,11 @@ package com.example.firebaselearn;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -55,6 +59,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_item, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.logoutButton:
+                doLogoutUser();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void doLogoutUser() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(MainActivity.this, SignInActivity.class);
+        startActivity(intent);
     }
 
     private void initListener() {
