@@ -3,6 +3,7 @@ package com.example.firebaselearn;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,7 +14,9 @@ import android.widget.Toast;
 
 import com.example.firebaselearn.databinding.ActivityMainBinding;
 import com.example.firebaselearn.model.UserModel;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,6 +28,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     ActivityMainBinding binding;
+    private ProgressDialog progressDialog;
     public MainActivity(){}
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot!=null){
+                        if(snapshot.hasChildren()){
                             UserModel userModel = snapshot.getValue(UserModel.class);
                             binding.userNameTxt.setText(userModel.getName());
                             binding.emailTxt.setText(userModel.getEmail());
@@ -74,8 +78,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.logoutButton:
                 doLogoutUser();
                 break;
+            case R.id.deleteAccountButton:
+                doDeleteCurrentUser();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void doDeleteCurrentUser() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Please Wait..");
+        progressDialog.setMessage("We are deleting your Account");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("Users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .setValue(null)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                        FirebaseAuth.getInstance().getCurrentUser().delete()
+                              .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                  @Override
+                                  public void onComplete(@NonNull Task<Void> task) {
+                                      if(task.isSuccessful()){
+                                          progressDialog.dismiss();
+                                          Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+                                          startActivity(intent);
+                                      }
+                                      else{
+
+                                      }
+                                  }
+                              });
+                    }
+                });
+
     }
 
     private void doLogoutUser() {

@@ -3,4 +3,7 @@
 <item
     android:id="@+id/logoutButton"
     android:title="Logout"/>
+    <item
+        android:id="@+id/deleteAccountButton"
+        android:title="Delete Account"/>
 </menu>
