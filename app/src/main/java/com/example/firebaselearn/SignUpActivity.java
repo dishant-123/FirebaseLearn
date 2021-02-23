@@ -11,9 +11,15 @@ import android.widget.Toast;
 
 import com.example.firebaselearn.databinding.ActivitySignUpBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -79,8 +85,31 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         ).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                progressDialog.dismiss();
+
                 if(task.isSuccessful()){
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("name",binding.nameTxt.getText().toString().trim());
+                    map.put("email",binding.emailTxt.getText().toString().trim());
+                    map.put("password",binding.passwordTxt.getText().toString().trim());
+                    FirebaseDatabase.getInstance()
+                            .getReference()
+                            .child("Users")
+                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .updateChildren(map)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    progressDialog.dismiss();
+                                    Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(SignUpActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                     Toast.makeText(SignUpActivity.this, "User SignUp Successfully", Toast.LENGTH_SHORT).show();
                 }
                 else{

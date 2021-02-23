@@ -76,6 +76,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressDialog.dismiss();
                 if(task.isSuccessful()){
+                    Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                    startActivity(intent);
                     Toast.makeText(SignInActivity.this, "User SignIn Successfully", Toast.LENGTH_SHORT).show();
                 }
                 else{
