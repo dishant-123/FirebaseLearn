@@ -1,7 +1,7 @@
 package com.example.firebaselearn.model;
 
 public class UserModel {
-    private String name, email, password, age, gender;
+    private String name, email, password, age, gender, profileImg;
     public UserModel(){}
 
     public String getName() {
@@ -42,5 +42,13 @@ public class UserModel {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getProfileImg() {
+        return profileImg;
+    }
+
+    public void setProfileImg(String profileImg) {
+        this.profileImg = profileImg;
     }
 }
