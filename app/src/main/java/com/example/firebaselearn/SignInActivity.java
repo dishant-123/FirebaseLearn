@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,10 +15,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
     ActivitySignInBinding binding;
+    private FirebaseRemoteConfig firebaseRemoteConfig;
     private ProgressDialog progressDialog;
     public SignInActivity(){}
     @Override
@@ -25,7 +29,32 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         binding = ActivitySignInBinding.inflate(getLayoutInflater());
         initListener();
+        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings firebaseRemoteConfigSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(60)
+                .build();
+        firebaseRemoteConfig.setConfigSettingsAsync(firebaseRemoteConfigSettings);
+        firebaseRemoteConfig.setDefaultsAsync(R.xml.login_default_values);
+        getValueFromFireBaseCOnfig();
         setContentView(binding.getRoot());
+    }
+
+    private void getValueFromFireBaseCOnfig() {
+        firebaseRemoteConfig.fetchAndActivate()
+                .addOnCompleteListener(new OnCompleteListener<Boolean>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Boolean> task) {
+                        if(task.isSuccessful())
+                        {
+                            Log.i("SignInActivity", String.valueOf(task.getResult()));
+                            String text = firebaseRemoteConfig.getString("login_submit_text");
+                            binding.signInButton.setText(text);
+                        }
+                        else{
+                            Toast.makeText(SignInActivity.this, "Fetch Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     private void initListener() {
