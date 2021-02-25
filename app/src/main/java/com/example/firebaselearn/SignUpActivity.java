@@ -107,9 +107,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    progressDialog.dismiss();
-                                    Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                                    startActivity(intent);
+                                    //sent verificaion email
+                                    sendVerificationEmail();
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -125,5 +124,24 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 }
             }
         });
+    }
+
+    private void sendVerificationEmail() {
+        FirebaseAuth.getInstance().getCurrentUser()
+                .sendEmailVerification()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressDialog.dismiss();
+                        Toast.makeText(SignUpActivity.this, "Email Verification link sent to your email. please verifiy and then signin", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(SignUpActivity.this, "Email not sent", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
