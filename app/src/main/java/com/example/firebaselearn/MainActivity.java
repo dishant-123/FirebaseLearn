@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         binding.submitButton.setOnClickListener(this);
         binding.uploadButton.setOnClickListener(this);
         binding.deleteButton.setOnClickListener(this);
+        binding.crashButton.setOnClickListener(this);
     }
 
     @Override
@@ -171,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.deleteButton:
                 doDeleteUserProfileImage();
                 break;
+            case R.id.crashButton:
+                throw new RuntimeException("Test Crash");
         }
     }
 
