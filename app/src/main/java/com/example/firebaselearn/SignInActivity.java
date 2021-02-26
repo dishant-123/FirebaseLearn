@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,9 +13,13 @@ import android.widget.Toast;
 
 import com.example.firebaselearn.databinding.ActivitySignInBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
@@ -36,7 +41,40 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         firebaseRemoteConfig.setConfigSettingsAsync(firebaseRemoteConfigSettings);
         firebaseRemoteConfig.setDefaultsAsync(R.xml.login_default_values);
         getValueFromFireBaseCOnfig();
+        getDynamicLinkFromFireBase();
         setContentView(binding.getRoot());
+    }
+
+    private void getDynamicLinkFromFireBase() {
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(getIntent())
+                .addOnSuccessListener(new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        Log.i("SignInActivity","We have a Dynamic Link");
+                        Uri deepLink = null;
+
+                        if(pendingDynamicLinkData!=null){
+                            deepLink = pendingDynamicLinkData.getLink();
+                        }
+
+                        if(deepLink!=null){
+                            Log.i("SignInActivity", "Here the Dynamic link \n" + deepLink.toString());
+
+                            String email = deepLink.getQueryParameter("email");
+                            String password = deepLink.getQueryParameter("password");
+
+                            binding.emailTxt.setText(email);
+                            binding.passwordTxt.setText(password);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(SignInActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void getValueFromFireBaseCOnfig() {
